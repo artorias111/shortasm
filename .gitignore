@@ -1,1 +1,23 @@
-/target
+# Operating System & Editor specific files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+
+# Compiled files and build artifacts
+*.o
+*.pyc
+__pycache__/
+target/ # For Rust projects
+
+# Dependency directories
+node_modules/
+venv/
+.venv/
+env/
+
+# Log files and temporary data
+*.log
+*.tmp
+.env

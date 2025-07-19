@@ -1,3 +1,5 @@
 fn main() {
-    println!("Hello, world!");
+    let reads_dir = ""; // path to reads.fq
+    
+    
 }
