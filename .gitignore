@@ -9,7 +9,7 @@ Thumbs.db
 *.o
 *.pyc
 __pycache__/
-target/ # For Rust projects
+target/ 
 
 # Dependency directories
 node_modules/
