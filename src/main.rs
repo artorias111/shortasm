@@ -1,11 +1,13 @@
 use clap::Parser;
+use needletail::parse_fastx_file;
+use std::str;
 
-/// PRoduce De Bruijn graphs from short reads
+/// Produce De Bruijn graphs from short reads
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 
 struct Args {
-    /// Directory containing all your short reads
+    /// Path to short reads file
     #[arg(short, long)]
     reads: String,
 
@@ -16,6 +18,21 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
+    // Path to the test fastq file :
+    // /Users/sbhat/Documents/projects/shortasm/tests/fastq_files/6_Swamp_S1_18S_2019_minq7.fastq.gz
 
-    println!("Your short reads are in {}, and your k-mer size is {}", args.reads, args.kmer);
+    println!("Your short reads file is {}, and your k-mer size is {}", args.reads, args.kmer);
+    let mut reader = parse_fastx_file(&args.reads).expect("the fastq path is not valid");
+    while let Some(record) = reader.next() {
+        let seqrec = record.expect("invalid record");
+        let seqid = seqrec.id();
+        let seqvec = seqrec.seq();
+        let id_str = str::from_utf8(seqid).unwrap();
+        let seq_str = str::from_utf8(&seqvec).unwrap();
+
+
+        println!("{id_str}");
+        println!("{seq_str}");
+
+    }
 }
