@@ -1,5 +1,6 @@
 use clap::Parser;
 use needletail::parse_fastx_file;
+use needletail::Sequence;
 use std::str;
 
 /// Produce De Bruijn graphs from short reads
@@ -18,6 +19,8 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
+
+    let kmer_size = args.kmer;
     // Path to the test fastq file :
     // /Users/sbhat/Documents/projects/shortasm/tests/fastq_files/6_Swamp_S1_18S_2019_minq7.fastq.gz
 
@@ -30,9 +33,16 @@ fn main() {
         let id_str = str::from_utf8(seqid).unwrap();
         let seq_str = str::from_utf8(&seqvec).unwrap();
 
+        // k-merize the sequence
 
-        println!("{id_str}");
-        println!("{seq_str}");
+        println!("k-mers for {id_str}");
+
+        for k in seqrec.kmers(kmer_size) {
+            let kmer_str = str::from_utf8(k).unwrap();
+            println!("{kmer_str}");
+        }
+
+        // println!("{seq_str}");
 
     }
 }
