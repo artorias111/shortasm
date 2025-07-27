@@ -1,7 +1,7 @@
 use clap::Parser;
-use needletail::parse_fastx_file;
-use needletail::Sequence;
+use needletail::{parse_fastx_file, Sequence};
 use std::str;
+use std::collections::HashMap;
 
 /// Produce De Bruijn graphs from short reads
 #[derive(Parser, Debug)]
@@ -13,14 +13,13 @@ struct Args {
     reads: String,
 
     /// k-mer size
-    #[arg(short, long, default_value_t = 7)]
+    #[arg(short, long, default_value_t = 6)]
     kmer: u8,
 }
 
 fn main() {
     let args = Args::parse();
     let kmer_size = args.kmer;
-    // /Users/sbhat/Documents/projects/shortasm/tests/fastq_files/6_Swamp_S1_18S_2019_minq7.fastq.gz - path to the test fastq file
 
     println!("Your short reads file is {}, and your k-mer size is {}", args.reads, args.kmer);
     let mut reader = parse_fastx_file(&args.reads).expect("the fastq path is not valid");
@@ -28,8 +27,8 @@ fn main() {
         let seqrec = record.expect("invalid record");
         let seqid = seqrec.id();
         let seqvec = seqrec.seq();
-        let id_str = str::from_utf8(seqid).unwrap();
-        let _seq_str = str::from_utf8(&seqvec).unwrap(); // unused variable
+        let _id_str = str::from_utf8(seqid).unwrap();
+        let _seq_str = str::from_utf8(&seqvec).unwrap(); 
 
         // normalize the sequence to ensure all nucleotides are uppercase, and all special
         // character from the fastx file is removed
@@ -39,6 +38,9 @@ fn main() {
         // get the reverse complement
         let rc = seq_norm.reverse_complement();
 
+        // store canonical kmers
+        let mut kmer_count:HashMap<&[u8], usize> = HashMap::new();
+
         for (_, kmer_obj, rc_flag) in seq_norm.canonical_kmers(kmer_size, &rc) { // I'm sure this
                                                                                  // part can be a
                                                                                  // lot more
@@ -46,6 +48,11 @@ fn main() {
                                                                                  // hey, I'm still
                                                                                  // learning Rust
                                                                                  // :D
+            kmer_count.entry(kmer_obj)
+                .and_modify(|e| { *e += 1 })
+                .or_insert(1);
+
+
             if rc_flag == true {
                 let og_seq = kmer_obj;
                 let rc_kmer = kmer_obj.reverse_complement();
@@ -63,6 +70,16 @@ fn main() {
                 println!("orignal sequence: {}\tReverse complement: {}\tCanonical k-mer:{}", og_seq_str, rc_kmer_str, kmer_str);
             }
 
+
+            
+        }
+
+        // get your k-mer count hashmap, prints once for each record though, need to fix that
+
+        for (k, v) in &kmer_count {
+            let kmer_str = str::from_utf8(k).unwrap();
+            let count = v;
+            println!("{kmer_str}: {count}");
         }
 
         /*
@@ -78,4 +95,5 @@ fn main() {
         // println!("{seq_str}");
         */
     }
+     
 }
