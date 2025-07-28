@@ -17,7 +17,7 @@ struct Args {
     kmer: u8,
 }
 
-fn count_kmers(file: String, kmer_size: u8) ->HashMap<String, usize> {
+fn count_kmers(file: &str, kmer_size: u8) ->HashMap<String, usize> {
     let mut reader = parse_fastx_file(&file).expect("the fastq path is not valid");
     let mut kmer_count:HashMap<String, usize> = HashMap::new();
 
@@ -48,7 +48,7 @@ fn count_kmers(file: String, kmer_size: u8) ->HashMap<String, usize> {
                 .and_modify(|e| { *e += 1 })
                 .or_insert(1);
 
-            if rc_flag == true {
+            if rc_flag {
                 let og_seq = kmer_obj;
                 let rc_kmer = kmer_obj.reverse_complement();
                 let _og_seq_str = str::from_utf8(&og_seq).unwrap();
@@ -66,7 +66,8 @@ fn count_kmers(file: String, kmer_size: u8) ->HashMap<String, usize> {
             }
         }
     }
-    return kmer_count;
+
+    kmer_count
 }
 
 // new main function, much cleaner :D
@@ -76,7 +77,7 @@ fn main() {
 
     println!("Your short reads file is {}, and your k-mer size is {}", args.reads, args.kmer);
     
-    let kmer_count = count_kmers(args.reads, args.kmer);
+    let kmer_count = count_kmers(&args.reads, args.kmer);
     let mut counts = 0;
     for (k, v) in &kmer_count {
         println!("{k}: {v}");
