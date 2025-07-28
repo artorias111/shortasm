@@ -17,12 +17,10 @@ struct Args {
     kmer: u8,
 }
 
-fn main() {
-    let args = Args::parse();
-    let kmer_size = args.kmer;
+fn count_kmers(file: String, kmer_size: u8) ->HashMap<String, usize> {
+    let mut reader = parse_fastx_file(&file).expect("the fastq path is not valid");
+    let mut kmer_count:HashMap<String, usize> = HashMap::new();
 
-    println!("Your short reads file is {}, and your k-mer size is {}", args.reads, args.kmer);
-    let mut reader = parse_fastx_file(&args.reads).expect("the fastq path is not valid");
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
         let seqid = seqrec.id();
@@ -39,61 +37,54 @@ fn main() {
         let rc = seq_norm.reverse_complement();
 
         // store canonical kmers
-        let mut kmer_count:HashMap<&[u8], usize> = HashMap::new();
 
         for (_, kmer_obj, rc_flag) in seq_norm.canonical_kmers(kmer_size, &rc) { // I'm sure this
-                                                                                 // part can be a
+                                                                                 // block can be a
                                                                                  // lot more
                                                                                  // idiomatic, but
                                                                                  // hey, I'm still
-                                                                                 // learning Rust
-                                                                                 // :D
-            kmer_count.entry(kmer_obj)
+                                                                                 // learning Rust:D
+            kmer_count.entry(str::from_utf8(kmer_obj).unwrap().to_string())
                 .and_modify(|e| { *e += 1 })
                 .or_insert(1);
-
 
             if rc_flag == true {
                 let og_seq = kmer_obj;
                 let rc_kmer = kmer_obj.reverse_complement();
-                let og_seq_str = str::from_utf8(&og_seq).unwrap();
-                let rc_kmer_str = str::from_utf8(&rc_kmer).unwrap();
-                let kmer_str = str::from_utf8(kmer_obj).unwrap();
-                println!("orignal sequence: {}\tReverse complement: {}\tCanonical k-mer:{}", og_seq_str, rc_kmer_str, kmer_str);
+                let _og_seq_str = str::from_utf8(&og_seq).unwrap();
+                let _rc_kmer_str = str::from_utf8(&rc_kmer).unwrap();
+                let _kmer_str = str::from_utf8(kmer_obj).unwrap();
+                // println!("orignal sequence: {}\tReverse complement: {}\tCanonical k-mer:{}", og_seq_str, rc_kmer_str, kmer_str);
 
             } else {
                 let og_seq = kmer_obj.reverse_complement();
                 let rc_kmer = kmer_obj;
-                let og_seq_str = str::from_utf8(&og_seq).unwrap();
-                let rc_kmer_str = str::from_utf8(&rc_kmer).unwrap();
-                let kmer_str = str::from_utf8(kmer_obj).unwrap();
-                println!("orignal sequence: {}\tReverse complement: {}\tCanonical k-mer:{}", og_seq_str, rc_kmer_str, kmer_str);
+                let _og_seq_str = str::from_utf8(&og_seq).unwrap();
+                let _rc_kmer_str = str::from_utf8(&rc_kmer).unwrap();
+                let _kmer_str = str::from_utf8(kmer_obj).unwrap();
+                // println!("orignal sequence: {}\tReverse complement: {}\tCanonical k-mer:{}", og_seq_str, rc_kmer_str, kmer_str);
             }
-
-
-            
         }
-
-        // get your k-mer count hashmap, prints once for each record though, need to fix that
-
-        for (k, v) in &kmer_count {
-            let kmer_str = str::from_utf8(k).unwrap();
-            let count = v;
-            println!("{kmer_str}: {count}");
-        }
-
-        /*
-        // k-merize the sequence
-
-        println!("k-mers for {id_str}");
-
-        for k in seqrec.kmers(kmer_size) {
-            let kmer_str = str::from_utf8(k).unwrap();
-            println!("{kmer_str}");
-        }
-
-        // println!("{seq_str}");
-        */
     }
-     
+    return kmer_count;
 }
+
+// new main function, much cleaner :D
+fn main() {
+    let args = Args::parse();
+    // let mut kmer_count:HashMap<String, usize> = HashMap::new();
+
+    println!("Your short reads file is {}, and your k-mer size is {}", args.reads, args.kmer);
+    
+    let kmer_count = count_kmers(args.reads, args.kmer);
+    let mut counts = 0;
+    for (k, v) in &kmer_count {
+        println!("{k}: {v}");
+        counts +=1;
+        if counts >10 {
+            break;
+        }
+    }
+}
+
+
