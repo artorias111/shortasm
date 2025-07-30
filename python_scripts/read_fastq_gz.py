@@ -3,7 +3,7 @@
 import gzip
 from Bio import SeqIO
 
-k = 12  # Set your desired k-mer length here - might have to be an input later
+k = 6  # Set your desired k-mer length here - might have to be an input later
 
 
 def reverse_complement(sequence):
