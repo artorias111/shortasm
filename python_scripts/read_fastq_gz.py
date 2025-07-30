@@ -1,9 +1,17 @@
 # read gzip files and print as a fasta
-
 import gzip
 from Bio import SeqIO
 
-k = 6  # Set your desired k-mer length here - might have to be an input later
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--reads', type = str, required = True)
+parser.add_argument('--kmer', type = int, default = 6)
+args = parser.parse_args()
+
+
+
+k = args.kmer  # Set your desired k-mer length here - might have to be an input later
 
 
 def reverse_complement(sequence):
@@ -11,7 +19,7 @@ def reverse_complement(sequence):
     return sequence.translate(complement)[::-1]
 
 
-fastq_file = '../tests/fastq_files/6_Swamp_S1_18S_2019_minq7.fastq.gz'
+fastq_file = args.reads
 kmer_counts = {}
 with gzip.open(fastq_file, 'rt') as f:
     for record in SeqIO.parse(f, "fastq"):
