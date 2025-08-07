@@ -1,4 +1,3 @@
-# read gzip files and print as a fasta
 import gzip
 from Bio import SeqIO
 import argparse
@@ -11,12 +10,10 @@ class FastqProcessor:
         self.kmer_counts = {}
     
     def reverse_complement(self, sequence):
-        """Generate reverse complement of a DNA sequence."""
         complement = str.maketrans('ACGTacgt', 'TGCAtgca')
         return sequence.translate(complement)[::-1]
     
     def process_fastq(self):
-        """Process FASTQ file and count k-mers."""
         with gzip.open(self.reads_file, 'rt') as f:
             for record in SeqIO.parse(f, "fastq"):
                 seq = str(record.seq)
@@ -31,13 +28,11 @@ class FastqProcessor:
                         self.kmer_counts[canonical] = 1
     
     def print_sample_kmers(self, sample_size=10):
-        """Print a sample of the k-mer counts."""
         print("=== K-mer Counts Sample ===")
         for kmer, count in list(self.kmer_counts.items())[:sample_size]:
             print(f"{kmer}: {count}")
     
     def get_kmer_counts(self):
-        """Return the k-mer counts dictionary."""
         return self.kmer_counts
 
 
@@ -47,15 +42,12 @@ def main():
     parser.add_argument('--kmer', type=int, default=6)
     args = parser.parse_args()
     
-    # Create processor instance
     processor = FastqProcessor(args.reads, args.kmer)
     
-    # Process the FASTQ file
     print(f"Processing FASTQ file: {args.reads}")
     print(f"K-mer length: {args.kmer}")
     processor.process_fastq()
     
-    # Print results
     processor.print_sample_kmers()
 
 
