@@ -54,7 +54,8 @@ def main():
     
     print("\n=== Custom Graph Example ===")
     custom_nodes = ["X", "Y", "Z"]
-    custom_edges = [("X", "Y"), ("Y", "Z"), ("Z", "X")]
+    custom_edges = [("X", "Y"), ("Y", "Z"), ("Z", "X")] # list of tuples for edges, are they directed? 
+                                                        # I don't think so, but tuples are ordered, so I'm not sure, maybe they ARE directed
     
     experimenter.create_custom_graph(custom_nodes, custom_edges)
     experimenter.print_graph_info()

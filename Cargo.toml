@@ -7,3 +7,4 @@ edition = "2024"
 clap = { version = "4.5.41", features = ["derive"] }
 needletail = { version = "0.6", features = ["flate2"] }
 flate2 = "0.2"
+petgraph = "0.8.2"
