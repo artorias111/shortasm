@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::str;
 
 fn count_kmers(file: &str, kmer_size: u8) -> anyhow::Result<HashMap<String, usize>> {
-    let mut reader = parse_fastx_file(&file)?;
+    let mut reader = parse_fastx_file(file)?;
     let mut kmer_count = HashMap::new();
 
     while let Some(record) = reader.next() {
