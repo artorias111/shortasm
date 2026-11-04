@@ -1,4 +1,6 @@
 mod cli;
+mod kmer;
+
 use clap::Parser;
 use cli::Args;
 use needletail::{Sequence, parse_fastx_file};
@@ -24,10 +26,8 @@ fn count_kmers(file: &str, kmer_size: u8) -> anyhow::Result<HashMap<String, usiz
     Ok(kmer_count)
 }
 
-// new main function, much cleaner :D
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    // let mut kmer_count:HashMap<String, usize> = HashMap::new();
 
     if args.kmer % 2 == 0 || args.kmer > 31 {
         anyhow::bail!("k must be odd and at most 31, got {}", args.kmer);
