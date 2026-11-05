@@ -28,12 +28,36 @@ impl Kmer {
     }
 
     /// Reverse complement a Kmer
+
+    /*
     pub fn revcomp(self, k: usize) -> Kmer {
-        todo!()
+        let mut x = self.0;
+        let mut revcomp_bytes = Vec::new();
+        for _ in 0..k {
+            let base = x & 3;
+            revcomp_bytes.push(3 - base);
+            x = x >> 2;
+        }
+        let kmer_bytes: &[u8] = &revcomp_bytes;
+        Ok(from_bytes(kmer_bytes))
+    }
+    */
+
+    pub fn revcomp(self, k: usize) -> Kmer {
+        let mut code = 0;
+        let mut x = self.0;
+        for _ in 0..k {
+            // hurts my brain
+            let base = x & 3;
+            code = code << 2 | 3 - base;
+            x = x >> 2;
+        }
+        Kmer(code)
     }
 
     pub fn canonical(self, k: usize) -> Kmer {
-        todo!()
+        let rc = self.revcomp(k);
+        if rc > self { self } else { rc }
     }
 
     /// binary back to nucleotide
@@ -70,5 +94,34 @@ mod tests {
     fn round_trip() {
         let km = Kmer::from_bytes(b"ACGTTGCA").unwrap();
         assert_eq!(km.decode(8), "ACGTTGCA");
+    }
+
+    #[test]
+    fn revcomp_basic() {
+        let km = Kmer::from_bytes(b"AACG").unwrap();
+        assert_eq!(km.revcomp(4).decode(4), "CGTT");
+    }
+
+    #[test]
+    fn revcomp_twice() {
+        let km = Kmer::from_bytes(b"GATTACA").unwrap();
+        assert_eq!(km.revcomp(7).revcomp(7), km);
+    }
+
+    #[test]
+    fn canonical_same_both_strands() {
+        let km = Kmer::from_bytes(b"GATTACA").unwrap();
+        assert_eq!(km.canonical(7), km.revcomp(7).canonical(7));
+    }
+
+    #[test]
+    fn canonical_picks_smaller() {
+        let km = Kmer::from_bytes(b"TTTT").unwrap();
+        assert_eq!(km.canonical(4).decode(4), "AAAA");
+    }
+
+    #[test]
+    fn n_is_none() {
+        assert_eq!(Kmer::from_bytes(b"ACNT"), None);
     }
 }
