@@ -28,28 +28,13 @@ impl Kmer {
     }
 
     /// Reverse complement a Kmer
-
-    /*
-    pub fn revcomp(self, k: usize) -> Kmer {
-        let mut x = self.0;
-        let mut revcomp_bytes = Vec::new();
-        for _ in 0..k {
-            let base = x & 3;
-            revcomp_bytes.push(3 - base);
-            x = x >> 2;
-        }
-        let kmer_bytes: &[u8] = &revcomp_bytes;
-        Ok(from_bytes(kmer_bytes))
-    }
-    */
-
     pub fn revcomp(self, k: usize) -> Kmer {
         let mut code = 0;
         let mut x = self.0;
         for _ in 0..k {
             // hurts my brain
             let base = x & 3;
-            code = code << 2 | 3 - base;
+            code = (code << 2) | (3 - base);
             x = x >> 2;
         }
         Kmer(code)
